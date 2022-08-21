@@ -13,4 +13,7 @@ AVR devices
 - All pins have to be connected within a single port (PORTB, PORTD, etc..)
 
 ## HD44780 LCD pinout:
-![Pinout]()
+![Pinout](https://github.com/Telekomak/HD44780-AVR-library/blob/master/lcd_pinout.png?raw=true)
+
+## Usage:
+  
