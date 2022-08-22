@@ -15,35 +15,38 @@ AVR devices
 ## HD44780 LCD pinout:
 ![Pinout](https://github.com/Telekomak/HD44780-AVR-library/blob/master/lcd_pinout.png?raw=true)
 
-## Usage:
-### Getting started:
-  #### 1. Pin configuration:
-  **All pins have to be connected within a single port!**
+# Usage:
+## Getting started:
+  ### 1. Pin configuration:
+  **Warning:** All pins have to be connected within a single port!
   
-  ##### Create instance of `PinConfig` struct:
+  **Create instance of `PinConfig` struct:**
   ```c
   PinConfig config = {.ddr = &DDRD, .port = &PORTD, .d0 = 16, .d1 = 32, .d2 = 64, .d3 = 128, .rs = 4, .en = 8};
   ```
-  ##### Values in `PinConfig` struct:
-  Assigned values must be corresponding to values of individual bits in port register
+  **Values in `PinConfig` struct:**
+  
+  Assigned values must be corresponding to values of individual bits in port register:
   
   ![values](https://user-images.githubusercontent.com/65535357/185972927-10caa351-8ff5-4215-bb8a-56a6f6a83714.png)
   
-  #### 2. Initialize the display
-  Call the `lcd_init()` function:
+  ### 2. Initializing the display
+  **Call the `lcd_init()` function with arguments:**
+  
+  1. pointer to `PinConfig` struct
   ``` c
     lcd_init(&config);
   ```
   **Warning:**
-  **If you change values in `config` you also need to reinitialize the display**
+  If you change values in `config` you also have to reinitialize the display
   
-  Display is off by default, to turn it on call `lcd_on()` function:
+  **Display is off by default, to turn it on call `lcd_on()` function:**
   ``` c
     lcd_on();
   ```
   
-  #### 3. Printing a message:
-  You can prit individual characters with `lcd_write_char()`:
+  ### 3. Printing a message:
+  **You can prit individual characters with `lcd_write_char()`:**
   ``` c
     lcd_write_char('H');
     lcd_write_char('e');
@@ -58,15 +61,44 @@ AVR devices
     lcd_write_char('d');
     lcd_write_char('!');
   ```
-  To clear the display use `lcd_clear()`:
+  **To clear the display use `lcd_clear()`:**
   ``` c
     lcd_clear();
   ```
-  To write string use `lcd_write_string()`:
+  **To write string use `lcd_write_string()` with arguments:**
+  
+  1. pointer to the string
+  2. lenght of the string
   ``` c
     char greetings[] = "Hello world!";
     lcd_write_string(&greetings[0], 12);
   ```
   
-  #### 4. Other stuff:
-  Set cursor position with `` 
+  ### 4. Other usefull functions:
+  **Enable cursor using `lcd_show_cursor()` with arguments:**
+  
+  1. enable blink (0 or 1)
+  ``` c
+    lcd_show_cursor(1);
+  ```
+  **Disable cursor using `lcd_hide_cursor()`:**
+  ``` c
+    lcd_hide_cursor();
+  ```
+  **Set cursor position using ``lcd_set_cursor()`` with arguments:**
+  
+  1. row (0 - 1)
+  2. collumn (0 - 40)
+  ``` c
+    lcd_set_cursor(0, 5);
+  ```
+  **Move cursor back to home position using `lcd_home()`:**
+  ``` c
+    lcd_home();
+  ```
+  **Turn the display off using `lcd_off()`:**
+  ``` c
+    lcd_off();
+  ```
+  
+## Reference:
