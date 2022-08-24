@@ -85,7 +85,7 @@ AVR devices
   ``` c
     lcd_hide_cursor();
   ```
-  **Set cursor position using ``lcd_set_cursor()`` with arguments:**
+  **Set cursor position using `lcd_set_cursor()` with arguments:**
   
   1. row (0 - 1)
   2. collumn (0 - 40)
@@ -99,6 +99,18 @@ AVR devices
   **Turn the display off using `lcd_off()`:**
   ``` c
     lcd_off();
+  ```
+  **Send commands to controller using `lcd_command()` with arguments:**
+  
+  1. command
+  ``` c
+    lcd_command(0x01);
+  ```
+  Note: You can find list of all commands in the [datasheet](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) on page 23 under *Instructions*
+  
+  **Pulse LCD's EN pin using `lcd_pulse_en`**:
+  ``` c
+    lcd_pulse_en();
   ```
   
 ## Resources:
