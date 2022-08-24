@@ -33,7 +33,7 @@ AVR devices
   ### 2. Initializing the display
   **Call the `lcd_init()` function with arguments:**
   
-  1. pointer to `PinConfig` struct
+  1. pointer to an instance of the `PinConfig` struct
   ``` c
     lcd_init(&config);
   ```
