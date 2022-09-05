@@ -16,7 +16,6 @@ uint8_t _cursor_visible = 0;
 uint8_t _cursor_blink = 0;
 uint8_t _display_on = 0;
 uint8_t _two_line = 1;
-int8_t _if_mode = -1;
 PinConfig* _config;
 
 void lcd_init(PinConfig* config)
@@ -25,21 +24,24 @@ void lcd_init(PinConfig* config)
 	
 	if (verify_config())
 	{
-		//check if LCD data pins are aligned according to linear mode
-		//(one after another in ascending order)
-		if ((config -> d0 >> 1 == config -> d1) &&
-			(config -> d1 >> 1 == config -> d2) &&
-			(config -> d2 >> 1 == config -> d3))
-		{
-				
-			_if_mode = 0;
-			init_linear();
-		}
-		else
-		{
-			_if_mode = 1;
-			init_nonlinear();
-		} 
+		uint8_t ddr_value = ( _config -> rs | _config -> en
+		| _config -> d0 | _config -> d1
+		| _config -> d2 | _config -> d3);
+		
+		//Label LCD pins as output
+		*(_config -> ddr) |= ddr_value;
+		
+		//Set all pins labeled as output to LOW
+		*(_config -> port) &= ~ddr_value;
+		
+		//4-bit mode initialization sequence
+		*(_config -> port) |= (_config -> d0 | _config -> d1);
+		lcd_pulse_en_repeat(3);
+		
+		clear_data_pins();
+		
+		*(_config -> port) |= _config -> d1;
+		lcd_pulse_en();
 	}
 	else return;
 	
@@ -47,53 +49,6 @@ void lcd_init(PinConfig* config)
 	lcd_command(_two_line? 0x2C : 0x24);
 	lcd_command(0x06);
 	lcd_command(0x08);
-}
-
-//init in linear mode [if_mode = 0]
-void init_linear()
-{
-	//compute bit offset of d0
-	_d0_pin_offset = my_log2(_config -> d0);
-	
-	uint8_t ddr_value = ((0x0F << _d0_pin_offset)  | _config -> rs | _config -> en);
-	
-	//Label LCD pins as output
-	*(_config -> ddr) |= ddr_value;
-	
-	//Set all pins labeled as output to LOW
-	*(_config -> port) &= ~ddr_value;
-	
-	//4-bit mode initialization sequence
-	*(_config -> port) |= 0x03 << _d0_pin_offset;
-	lcd_pulse_en_repeat(3);
-	
-	clear_data_pins();
-	
-	*(_config -> port) |= 0x02 << _d0_pin_offset;
-	lcd_pulse_en();
-}
-
-//init in nonlinear mode [if_mode = 1]
-void init_nonlinear()
-{
-	uint8_t ddr_value = ( _config -> rs | _config -> en 
-						| _config -> d0 | _config -> d1
-						| _config -> d2 | _config -> d3);
-	
-	//Label LCD pins as output
-	*(_config -> ddr) |= ddr_value;
-	
-	//Set all pins labeled as output to LOW
-	*(_config -> port) &= ~ddr_value;
-	
-	//4-bit mode initialization sequence
-	*(_config -> port) |= (_config -> d0 | _config -> d1);
-	lcd_pulse_en_repeat(3);
-	
-	clear_data_pins();
-	
-	*(_config -> port) |= _config -> d1;
-	lcd_pulse_en();
 }
 
 uint8_t verify_config()
@@ -141,36 +96,21 @@ void write_value(uint8_t value, uint8_t rs_value)
 	
 	if (rs_value) *(_config -> port) |= _config -> rs;
 	
-	if (_if_mode)
-	{
-		*(_config -> port) |= value & 0x80? _config -> d3 : 0;
-		*(_config -> port) |= value & 0x40? _config -> d2 : 0;
-		*(_config -> port) |= value & 0x20? _config -> d1 : 0;
-		*(_config -> port) |= value & 0x10? _config -> d0 : 0;
-		
-		lcd_pulse_en();
-		
-		clear_data_pins();
-		
-		*(_config -> port) |= value & 0x08? _config -> d3 : 0;
-		*(_config -> port) |= value & 0x04? _config -> d2 : 0;
-		*(_config -> port) |= value & 0x02? _config -> d1 : 0;
-		*(_config -> port) |= value & 0x01? _config -> d0 : 0;
-		
-		lcd_pulse_en();
-	}
-	else if(!_if_mode)
-	{
-		*(_config -> port) |= (value & 0xF0) >> (8 - (_d0_pin_offset + 4));
-		//*(_config -> port) |= ((value & 0xF0) >> 4) << _d0_pin_offset;
-
-		lcd_pulse_en();
-		
-		clear_data_pins();
-		*(_config -> port) |= (value & 0x0F) << _d0_pin_offset;
-
-		lcd_pulse_en();
-	}
+	*(_config -> port) |= value & 0x80? _config -> d3 : 0;
+	*(_config -> port) |= value & 0x40? _config -> d2 : 0;
+	*(_config -> port) |= value & 0x20? _config -> d1 : 0;
+	*(_config -> port) |= value & 0x10? _config -> d0 : 0;
+	
+	lcd_pulse_en();
+	
+	clear_data_pins();
+	
+	*(_config -> port) |= value & 0x08? _config -> d3 : 0;
+	*(_config -> port) |= value & 0x04? _config -> d2 : 0;
+	*(_config -> port) |= value & 0x02? _config -> d1 : 0;
+	*(_config -> port) |= value & 0x01? _config -> d0 : 0;
+	
+	lcd_pulse_en();
 	
 	*(_config -> port) &= ~_config -> rs;
 	
@@ -194,8 +134,7 @@ void lcd_write_string(char* string, unsigned long length)
 
 void clear_data_pins()
 {
-	if (_if_mode) *(_config -> port) &= ~(_config -> d0 | _config -> d1 | _config -> d2 | _config -> d3);
-	else if(!_if_mode) *(_config -> port) &= ~(0x0F << _d0_pin_offset);
+	*(_config -> port) &= ~(_config -> d0 | _config -> d1 | _config -> d2 | _config -> d3);
 }
 
 void lcd_clear()

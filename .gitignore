@@ -19,4 +19,8 @@
 *.srec
 
 #User Specific Files
+<<<<<<< HEAD
 *.atsuo
+=======
+*.atsuo
+>>>>>>> 3a982417809c97b22973744fdc7796a5f9867c25
