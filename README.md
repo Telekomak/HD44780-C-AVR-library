@@ -74,45 +74,210 @@ AVR devices
     lcd_write_string(&greetings[0], 12);
   ```
   
-  ### 4. Other usefull functions:
-  **Enable cursor using `lcd_show_cursor()` with arguments:**
+## 4. Reference:
   
-  1. enable blink (0 or 1)
-  ``` c
-    lcd_show_cursor(1);
-  ```
-  **Disable cursor using `lcd_hide_cursor()`:**
-  ``` c
-    lcd_hide_cursor();
-  ```
-  **Set cursor position using `lcd_set_cursor()` with arguments:**
+  ### `int lcd_init(PinConfig* config)`: ###
   
-  1. row (0 - 1)
-  2. collumn (0 - 40)
-  ``` c
-    lcd_set_cursor(0, 5);
-  ```
-  **Move cursor back to home position using `lcd_home()`:**
-  ``` c
-    lcd_home();
-  ```
-  **Turn the display off using `lcd_off()`:**
-  ``` c
-    lcd_off();
-  ```
-  **Send commands to controller using `lcd_command()` with arguments:**
+  - **Description:**
   
-  1. command
-  ``` c
-    lcd_command(0x01);
-  ```
-  Note: You can find list of all commands in the [datasheet](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) on page 23 under *Instructions*
+        Initializes the HD44780 interface
+    
+  - **Arguments:**
   
-  **Pulse LCD's EN pin using `lcd_pulse_en`**:
-  ``` c
-    lcd_pulse_en();
-  ```
+        1. Pointer to instance of PinConfig struct
+    
+  - **Return value: `int`:** 
   
+        0 if success
+        1 if pin verification failed (some values specified in supplied config are the same or 0)
+    
+    
+ ### `void lcd_command(uint8_t command)`: ###
+  
+  - **Description:**
+  
+        Sends command for the display (list of commands can be found in the datasheet on page 25)
+    
+  - **Arguments:**
+  
+        1. Command (in the datasheet refferred to as `instruction`)
+    
+  - **Return value: `void`:** 
+  
+        none
+    
+    
+ ### `void lcd_write_char(char character)`: ###
+  
+  - **Description:**
+  
+        Writes one character to the display
+    
+  - **Arguments:**
+  
+        1. ASCII character
+    
+  - **Return value: `void`:** 
+  
+        none
+    
+ ### `void lcd_clear()`: ###
+  
+  - **Description:**
+  
+        Clears the display
+    
+  - **Arguments:**
+  
+        none
+    
+  - **Return value: `void`:** 
+  
+        none
+    
+    
+ ### `void lcd_set_cursor(uint8_t row, uint8_t collumn)`: ###
+  
+  - **Description:**
+  
+        Sets the cursor position
+    
+  - **Arguments:**
+  
+        1. row (0 or 1)
+        2. collumn (0 to 40)
+    
+  - **Return value: `void`:** 
+  
+        none
+        
+     
+ ### `void lcd_write_string(char* string, unsigned long length)`: ###
+  
+  - **Description:**
+  
+        Writes string of characters to the display
+    
+  - **Arguments:**
+  
+        1. pointer to the first character of the string
+        2. length of the string
+    
+  - **Return value: `void`:** 
+  
+        none
+        
+        
+ ### `void lcd_pulse_en()`: ###
+  
+  - **Description:**
+  
+        Pulses the EN pin of the display 
+          1. pulls the pin HIGH
+          2. waits specified amount of microseconds (LCD_DELAY in HD44780/HD44780.c)
+          3. pulls the pin LOW again
+    
+  - **Arguments:**
+  
+        none
+    
+  - **Return value: `void`:** 
+  
+        none
+        
+        
+  ### `void lcd_pulse_en_repeat(int repeat)`: ###
+  
+  - **Description:**
+  
+        Calls lcd_pulse_en() specified amount of times
+    
+  - **Arguments:**
+  
+        1. amount of times to repeat
+    
+  - **Return value: `void`:** 
+  
+        none
+        
+        
+ ### `void lcd_show_cursor(uint8_t blink)`: ###
+  
+  - **Description:**
+  
+        Turns on cursor on the display
+    
+  - **Arguments:**
+  
+        1. Should the cursor blink?
+           0 - no
+           > 0 - yes
+    
+  - **Return value: `void`:** 
+  
+        none
+        
+ 
+ ### `void lcd_hide_cusror()`: ###
+  
+  - **Description:**
+  
+        Turns of cursor on the display
+    
+  - **Arguments:**
+  
+        none
+    
+  - **Return value: `void`:** 
+  
+        none
+        
+ 
+  ### `void lcd_on()`: ###
+  
+  - **Description:**
+  
+        Turns on the display
+    
+  - **Arguments:**
+  
+        none
+    
+  - **Return value: `void`:** 
+  
+        none
+        
+ 
+ ### `void lcd_off()`: ###
+  
+  - **Description:**
+  
+        Turns off the display
+    
+  - **Arguments:**
+  
+        none
+    
+  - **Return value: `void`:** 
+  
+        none
+        
+ 
+ ### `void lcd_home()`: ###
+  
+  - **Description:**
+  
+        Sets cursor to the home position (0, 0)
+    
+  - **Arguments:**
+  
+        none
+    
+  - **Return value: `void`:** 
+  
+        none
+        
+ 
 ## Resources:
 - [**HD44780 datasheet**](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf)
 - [**Awesome guide i was following**](https://www.glennklockwood.com/electronics/hd44780-lcd-display.html#introduction)
