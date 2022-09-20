@@ -18,7 +18,7 @@ uint8_t _display_on = 0;
 uint8_t _two_line = 1;
 PinConfig* _config;
 
-void lcd_init(PinConfig* config)
+int lcd_init(PinConfig* config)
 {
 	_config = config;
 	
@@ -43,12 +43,14 @@ void lcd_init(PinConfig* config)
 		*(_config -> port) |= _config -> d1;
 		lcd_pulse_en();
 	}
-	else return;
+	else return 1;
 	
 	//display config
 	lcd_command(_two_line? 0x2C : 0x24);
 	lcd_command(0x06);
 	lcd_command(0x08);
+	
+	return 0;
 }
 
 uint8_t verify_config()

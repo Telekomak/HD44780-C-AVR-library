@@ -18,7 +18,7 @@ typedef struct PinConfig{
 	uint8_t d3;
 } PinConfig;
 
-void lcd_init(PinConfig* config);
+int lcd_init(PinConfig* config);
 void lcd_command(uint8_t command);
 void lcd_write_char(char character);
 void lcd_clear();

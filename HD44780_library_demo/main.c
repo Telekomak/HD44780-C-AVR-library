@@ -52,6 +52,6 @@ int main(void)
 		if (!collumn) row++;
 		row %= 2;
 		
-		_delay_us(400000);
+		_delay_us(200000);
 	}
 }
