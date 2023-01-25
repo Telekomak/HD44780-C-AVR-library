@@ -9,7 +9,7 @@
 #endif
 
 #ifndef LCD_DELAY
-	#define LCD_DELAY 50u
+	#define LCD_DELAY 1500
 #endif
 
 typedef struct PinConfig{
