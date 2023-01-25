@@ -7,7 +7,7 @@ If this library doesn't work correctly, try redefining ```LCD_DELAY```. This val
 Amount of time that HD44780 needs is tied to clock frequency connected to the chip.
 Theese values are specified in the [datasheet](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) on page 24.
 
-It's either this or I've got something wrong in the code.
+It's either this or I have fucked up something in the code.
 
 ## Targets:
 AVR devices
