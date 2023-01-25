@@ -2,9 +2,14 @@
 #define HD44780_LCD_H_
 
 #include <avr/io.h>
+#include <util/delay.h>
 
 #ifndef F_CPU
 	#define F_CPU 16000000u
+#endif
+
+#ifndef LCD_DELAY
+	#define LCD_DELAY 50u
 #endif
 
 typedef struct PinConfig{

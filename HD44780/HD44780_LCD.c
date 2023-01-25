@@ -1,8 +1,4 @@
-#include <avr/io.h>
 #include "HD44780_LCD.h"
-#include <util/delay.h>
-
-#define LCD_DELAY 1500u
 
 void clear_data_pins();
 uint8_t my_log2(uint8_t x);
