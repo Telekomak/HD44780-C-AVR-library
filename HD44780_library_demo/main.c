@@ -12,38 +12,38 @@ int main(void)
 	char greetings[] = "Hello world!";
 	PinConfig config = {.ddr = &DDRD, .port = &PORTD, .d0 = 32, .d1 = 16, .d2 = 128, .d3 = 64, .rs = 4, .en = 8};
 	
-    lcd_init(&config);
-	lcd_home();
+    LCD_init(&config);
+	LCD_home();
 	
-	lcd_clear();
+	LCD_clear();
 	//display is off by default
-	lcd_on();
-	lcd_write_string(&display_on[0], 10);
+	LCD_on();
+	LCD_write_string(&display_on[0]);
 	_delay_us(1000000);
 	
-	lcd_clear();
-	lcd_show_cursor(0);
-	lcd_write_string(&cursor_visible[0], 14);
+	LCD_clear();
+	LCD_show_cursor();
+	LCD_write_string(&cursor_visible[0]);
 	_delay_us(1000000);
 	
-	lcd_clear();
-	lcd_show_cursor(1);
-	lcd_write_string(&cursor_blinking[0], 15);
+	LCD_clear();
+	LCD_cursor_blink();
+	LCD_write_string(&cursor_blinking[0]);
 	_delay_us(5000000);
 	
 	//demo app
-	lcd_hide_cusror();
+	LCD_hide_cursor();
 	
 	uint8_t collumn = 0, row = 0;
 	
 	while(1)
 	{
-		lcd_clear();
+		LCD_clear();
 		
 		for (int i = 0; i < 12; i++)
 		{
-			lcd_set_cursor(collumn + i > 15? !row : row, (collumn + i) % 16);
-			lcd_write_char(greetings[i]);
+			LCD_set_cursor(collumn + i > 15? !row : row, (collumn + i) % 16);
+			LCD_write_char(greetings[i]);
 		}
 		
 		collumn++;

@@ -1,68 +1,71 @@
 #include "HD44780_LCD.h"
 
-void clear_data_pins();
-uint8_t my_log2(uint8_t x);
-void write_value(uint8_t value, uint8_t rs_value);
-void init_linear();
-void init_nonlinear();
-uint8_t verify_config();
+//datasheet: https://www.sparkfun.com/datasheets/LCD/HD44780.pdf
 
-uint8_t _d0_pin_offset = 0;
-uint8_t _cursor_visible = 0;
-uint8_t _cursor_blink = 0;
-uint8_t _display_on = 0;
-uint8_t _two_line = 1;
-PinConfig* _config;
+#define LCD_STATE_CURSOR_VISIBLE 1
+#define LCD_STATE_CURSOR_BLINK 2
+#define LCD_STATE_ON 4
 
-int lcd_init(PinConfig* config)
+void _LCD_clear_data_pins();
+uint8_t _LCD_my_log2(uint8_t x);
+void _LCD_write_value(uint8_t value, uint8_t rs_value);
+void _LCD_init_linear();
+void _LCD_init_nonlinear();
+uint8_t _LCD_verify_config();
+ 
+uint8_t _LCD_current_state;
+PinConfig* _LCD_config;
+
+int LCD_init(PinConfig* config)
 {
-	_config = config;
+	_LCD_config = config;
+	_LCD_current_state = 8;
 	
-	if (verify_config())
+	if (_LCD_verify_config())
 	{
-		uint8_t ddr_value = ( _config -> rs | _config -> en
-		| _config -> d0 | _config -> d1
-		| _config -> d2 | _config -> d3);
+		uint8_t ddr_value = ( _LCD_config -> rs | _LCD_config -> en
+		| _LCD_config -> d0 | _LCD_config -> d1
+		| _LCD_config -> d2 | _LCD_config -> d3);
 		
 		//Label LCD pins as output
-		*(_config -> ddr) |= ddr_value;
+		*(_LCD_config -> ddr) |= ddr_value;
 		
 		//Set all pins labeled as output to LOW
-		*(_config -> port) &= ~ddr_value;
+		*(_LCD_config -> port) &= ~ddr_value;
 		
 		//4-bit mode initialization sequence
-		*(_config -> port) |= (_config -> d0 | _config -> d1);
-		lcd_pulse_en_repeat(3);
+		*(_LCD_config -> port) |= (_LCD_config -> d0 | _LCD_config -> d1);
+		LCD_pulse_en_repeat(3);
 		
-		clear_data_pins();
+		_LCD_clear_data_pins();
 		
-		*(_config -> port) |= _config -> d1;
-		lcd_pulse_en();
+		*(_LCD_config -> port) |= _LCD_config -> d1;
+		LCD_pulse_en();
 	}
 	else return 1;
 	
 	//display config
-	lcd_command(_two_line? 0x2C : 0x24);
-	lcd_command(0x06);
-	lcd_command(0x08);
+	LCD_instruction(0x2C);
+	LCD_instruction(0x06);
+	LCD_instruction(0x08);
 	
 	return 0;
 }
 
-uint8_t verify_config()
+uint8_t _LCD_verify_config()
 {
 	uint8_t current = 0, previous = 0;
 	
-	//cycle trough all members the _config struct
+	//cycle trough all members the _LCD_config struct
 	//skip first two because they are pointers (pointer is 2 bytes long)
 	for (uint8_t i = 2 * sizeof(uint8_t*); i < sizeof(PinConfig); i++)
 	{
-		//access the _config member on address _config + i
-		current |= *(((uint8_t*)_config) + i);
+		//access the _LCD_config member on address _LCD_config + i
+		current |= *(((uint8_t*)_LCD_config) + i);
 		
 		//if nothing has changed, one of the previous iterations has already
 		//set the bit to 1, which means that at least two values are the same,
-		//or the _config struct member has value of 0
+		//or the _LCD_config struct member has value of 0
 		if (current == previous) return 0;
 		previous = current;
 	}
@@ -70,134 +73,131 @@ uint8_t verify_config()
 	return 1;
 }
 
-void lcd_pulse_en()
+void LCD_pulse_en()
 {
-	*(_config -> port) |= _config -> en;
+	*(_LCD_config -> port) |= _LCD_config -> en;
 	_delay_us(LCD_DELAY);
-	*(_config -> port) &= ~_config -> en;
+	*(_LCD_config -> port) &= ~_LCD_config -> en;
 }
 
-void lcd_pulse_en_repeat(int repeat)
+void LCD_pulse_en_repeat(int repeat)
 {
-	for (int i = 0; i < repeat; i++) lcd_pulse_en();
+	for (int i = 0; i < repeat; i++) LCD_pulse_en();
 }
 
-uint8_t my_log2(uint8_t x)
+uint8_t _LCD_my_log2(uint8_t x)
 {
 	//shamelessly stolen from https://stackoverflow.com/questions/3064926/how-to-write-log-base2-in-c-c
 	return (uint8_t)(log10(x) / log10(2));
 }
 
-void write_value(uint8_t value, uint8_t rs_value)
+void _LCD_write_value(uint8_t value, uint8_t rs_value)
 {
-	clear_data_pins();
+	_LCD_clear_data_pins();
 	
-	if (rs_value) *(_config -> port) |= _config -> rs;
+	if (rs_value) *(_LCD_config -> port) |= _LCD_config -> rs;
 	
-	*(_config -> port) |= value & 0x80? _config -> d3 : 0;
-	*(_config -> port) |= value & 0x40? _config -> d2 : 0;
-	*(_config -> port) |= value & 0x20? _config -> d1 : 0;
-	*(_config -> port) |= value & 0x10? _config -> d0 : 0;
+	*(_LCD_config -> port) |= value & 0x80? _LCD_config -> d3 : 0;
+	*(_LCD_config -> port) |= value & 0x40? _LCD_config -> d2 : 0;
+	*(_LCD_config -> port) |= value & 0x20? _LCD_config -> d1 : 0;
+	*(_LCD_config -> port) |= value & 0x10? _LCD_config -> d0 : 0;
 	
-	lcd_pulse_en();
+	LCD_pulse_en();
 	
-	clear_data_pins();
+	_LCD_clear_data_pins();
 	
-	*(_config -> port) |= value & 0x08? _config -> d3 : 0;
-	*(_config -> port) |= value & 0x04? _config -> d2 : 0;
-	*(_config -> port) |= value & 0x02? _config -> d1 : 0;
-	*(_config -> port) |= value & 0x01? _config -> d0 : 0;
+	*(_LCD_config -> port) |= value & 0x08? _LCD_config -> d3 : 0;
+	*(_LCD_config -> port) |= value & 0x04? _LCD_config -> d2 : 0;
+	*(_LCD_config -> port) |= value & 0x02? _LCD_config -> d1 : 0;
+	*(_LCD_config -> port) |= value & 0x01? _LCD_config -> d0 : 0;
 	
-	lcd_pulse_en();
+	LCD_pulse_en();
 	
-	*(_config -> port) &= ~_config -> rs;
+	*(_LCD_config -> port) &= ~_LCD_config -> rs;
 	
-	clear_data_pins();
+	_LCD_clear_data_pins();
 }
 
-void lcd_command(uint8_t command)
+void LCD_instruction(uint8_t instruction)
 {
-	write_value(command, 0);
+	_LCD_write_value(instruction, 0);
 }
 
-void lcd_write_char(char character)
+void LCD_write_char(char character)
 {
-	write_value(character, 1);
+	_LCD_write_value(character, 1);
 }
 
-void lcd_write_string(char* string, unsigned long length)
+void LCD_write_string(char* string)
 {
-	for (unsigned long i = 0; i < length; i++) lcd_write_char(*(string + i));
+	for (uint16_t i = 0; string[i] != 0; i++) LCD_write_char(string[i]);
 }
 
-void clear_data_pins()
+void LCD_write_buffer(char* buffer, uint16_t length)
 {
-	*(_config -> port) &= ~(_config -> d0 | _config -> d1 | _config -> d2 | _config -> d3);
+	for (uint16_t i = 0; i < length; i++) LCD_write_char(buffer[i]);
 }
 
-void lcd_clear()
+void _LCD_clear_data_pins()
 {
-	lcd_command(1);
+	*(_LCD_config -> port) &= ~(_LCD_config -> d0 | _LCD_config -> d1 | _LCD_config -> d2 | _LCD_config -> d3);
 }
 
-void lcd_set_cursor(uint8_t row, uint8_t collumn)
+void LCD_clear()
 {
+	LCD_instruction(1);
+}
+
+void LCD_set_cursor(uint8_t row, uint8_t collumn)
+{
+	/*
 	uint8_t command = 128;
 	
-	if (!_two_line) command += collumn % 80;
-	else
-	{
-		 command += row? 64 : 0;
-		 command += collumn % 40;
-	}
-	
-	lcd_command(command);
+	command += row? 64 : 0;
+	command += collumn % 40;
+	*/
+	LCD_instruction(0x80 + row? 0x40 : 0 + collumn % 40);
 }
 
-void lcd_show_cursor(uint8_t blink)
+void LCD_cursor_blink()
 {
-	_cursor_visible = 1;
-	_cursor_blink = blink? 1 : 0;
-	
-	uint8_t command = 0x0A;
-	if (_cursor_blink) command |= 0x01;
-	if (_display_on) command |= 0x04;
-	
-	lcd_command(command);
+	_LCD_current_state |= LCD_STATE_CURSOR_BLINK;
+	LCD_instruction(_LCD_current_state);
 }
 
-void lcd_hide_cusror()
+void LCD_cursor_noblink()
 {
-	_cursor_visible = 0;
-	
-	lcd_command(_display_on? 0x0C : 0x08);
+	_LCD_current_state &= ~LCD_STATE_CURSOR_BLINK;
+	LCD_instruction(_LCD_current_state);
 }
 
-void lcd_on()
+void LCD_show_cursor()
 {
-	_display_on = 1;
-	
-	uint8_t command = 0x0C;
-	if (_cursor_visible) command |= 0x02;
-	if (_cursor_blink) command |= 0x01;
-	
-	lcd_command(command);
+	_LCD_current_state |= LCD_STATE_CURSOR_VISIBLE;
+	LCD_instruction(_LCD_current_state);
 }
 
-void lcd_off()
+void LCD_hide_cursor()
 {
-	_display_on = 0;
-	
-	uint8_t command = 0x08;
-	if (_cursor_visible) command |= 0x02;
-	if (_cursor_blink) command |= 0x01;
-	
-	lcd_command(command);
+	_LCD_current_state &= ~LCD_STATE_CURSOR_VISIBLE;
+	LCD_instruction(_LCD_current_state);
 }
 
-void lcd_home()
+void LCD_on()
 {
-	lcd_command(2);
+	_LCD_current_state |= LCD_STATE_ON;
+	LCD_instruction(_LCD_current_state);
+}
+
+void LCD_off()
+{
+	_LCD_current_state &= ~LCD_STATE_ON;
+	LCD_instruction(_LCD_current_state);
+}
+
+void LCD_home()
+{
+	LCD_instruction(2);
 	//this operation requires 1.52ms delay
 	_delay_us(1600 - LCD_DELAY);
 }

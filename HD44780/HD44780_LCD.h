@@ -1,8 +1,5 @@
-#ifndef HD44780_LCD_H_
-#define HD44780_LCD_H_
-
-#include <avr/io.h>
-#include <util/delay.h>
+#ifndef HD44780_LCD_H
+#define HD44780_LCD_H
 
 #ifndef F_CPU
 	#define F_CPU 16000000u
@@ -12,9 +9,12 @@
 	#define LCD_DELAY 1500
 #endif
 
+#include <avr/io.h>
+#include <util/delay.h>
+
 typedef struct PinConfig{
-	uint8_t* ddr;
-	uint8_t* port;
+	volatile uint8_t* ddr;
+	volatile uint8_t* port;
 	uint8_t rs;
 	uint8_t en;
 	uint8_t d0;
@@ -23,17 +23,20 @@ typedef struct PinConfig{
 	uint8_t d3;
 } PinConfig;
 
-int lcd_init(PinConfig* config);
-void lcd_command(uint8_t command);
-void lcd_write_char(char character);
-void lcd_clear();
-void lcd_set_cursor(uint8_t row, uint8_t collumn);
-void lcd_write_string(char* string, unsigned long length);
-void lcd_pulse_en();
-void lcd_pulse_en_repeat(int repeat);
-void lcd_show_cursor(uint8_t blink);
-void lcd_hide_cusror();
-void lcd_on();
-void lcd_off();
-void lcd_home();
+int LCD_init(PinConfig* config);
+void LCD_instruction(uint8_t instruction);
+void LCD_write_char(char character);
+void LCD_clear();
+void LCD_set_cursor(uint8_t row, uint8_t collumn);
+void LCD_write_string(char* string);
+void LCD_write_buffer(char* buffer, uint16_t length);
+void LCD_pulse_en();
+void LCD_pulse_en_repeat(int repeat);
+void LCD_show_cursor();
+void LCD_hide_cursor();
+void LCD_on();
+void LCD_off();
+void LCD_home();
+void LCD_cursor_blink();
+void LCD_cursor_noblink();
 #endif
