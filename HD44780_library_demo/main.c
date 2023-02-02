@@ -13,26 +13,30 @@ int main(void)
 	PinConfig config = {.ddr = &DDRD, .port = &PORTD, .d0 = 32, .d1 = 16, .d2 = 128, .d3 = 64, .rs = 4, .en = 8};
 	
     LCD_init(&config);
+	//display is off by default
+	LCD_on();
 	LCD_home();
 	
 	LCD_clear();
-	//display is off by default
-	LCD_on();
 	LCD_write_string(&display_on[0]);
-	_delay_us(1000000);
+	_delay_ms(3000);
 	
 	LCD_clear();
+	LCD_cursor_noblink();
 	LCD_show_cursor();
 	LCD_write_string(&cursor_visible[0]);
-	_delay_us(1000000);
+	_delay_ms(3000);
 	
 	LCD_clear();
 	LCD_cursor_blink();
 	LCD_write_string(&cursor_blinking[0]);
-	_delay_us(5000000);
+	_delay_ms(3000);
+	
 	
 	//demo app
 	LCD_hide_cursor();
+	LCD_cursor_noblink();
+	LCD_home();
 	
 	uint8_t collumn = 0, row = 0;
 	
@@ -42,7 +46,7 @@ int main(void)
 		
 		for (int i = 0; i < 12; i++)
 		{
-			LCD_set_cursor(collumn + i > 15? !row : row, (collumn + i) % 16);
+			LCD_set_cursor((collumn + i) > 15? !row : row, (collumn + i) % 16);
 			LCD_write_char(greetings[i]);
 		}
 		
@@ -52,6 +56,6 @@ int main(void)
 		if (!collumn) row++;
 		row %= 2;
 		
-		_delay_us(200000);
+		_delay_ms(1000);
 	}
 }

@@ -2,8 +2,8 @@
 
 //datasheet: https://www.sparkfun.com/datasheets/LCD/HD44780.pdf
 
-#define LCD_STATE_CURSOR_VISIBLE 1
-#define LCD_STATE_CURSOR_BLINK 2
+#define LCD_STATE_CURSOR_BLINK 1
+#define LCD_STATE_CURSOR_VISIBLE 2
 #define LCD_STATE_ON 4
 
 void _LCD_clear_data_pins();
@@ -150,13 +150,7 @@ void LCD_clear()
 
 void LCD_set_cursor(uint8_t row, uint8_t collumn)
 {
-	/*
-	uint8_t command = 128;
-	
-	command += row? 64 : 0;
-	command += collumn % 40;
-	*/
-	LCD_instruction(0x80 + row? 0x40 : 0 + collumn % 40);
+	LCD_instruction(0x80 + (row? 64 : 0) + (collumn % 40));
 }
 
 void LCD_cursor_blink()
