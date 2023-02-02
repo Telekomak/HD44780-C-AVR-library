@@ -323,4 +323,4 @@ AVR devices
  
 ## Resources:
 - [**HD44780 datasheet**](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf)
-- [**Awesome guide i was following**](https://www.glennklockwood.com/electronics/hd44780-lcd-display.html#introduction)
+- [**Guide for communication**](https://www.glennklockwood.com/electronics/hd44780-lcd-display.html#introduction)
