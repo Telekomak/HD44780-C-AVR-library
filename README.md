@@ -7,7 +7,7 @@ If this library doesn't work correctly, try redefining ```LCD_DELAY```. This val
 Amount of time that HD44780 needs is tied to clock frequency connected to the chip.
 Theese values are specified in the [datasheet](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) on page 24.
 
-It's either this or I have fucked up something in the code.
+It's either this or I fucked up something in the code.
 
 ## Targets:
 AVR devices
@@ -36,52 +36,51 @@ AVR devices
   ![values](https://user-images.githubusercontent.com/65535357/185972927-10caa351-8ff5-4215-bb8a-56a6f6a83714.png)
   
   ### 2. Initializing the display
-  **Call the `lcd_init()` function with arguments:**
+  **Call the `LCD_init(PinConfig*)` function with arguments:**
   
   1. pointer to an instance of the `PinConfig` struct
   ``` c
-    lcd_init(&config);
+    LCD_init(&config);
   ```
   **Warning:**
-  If you change values in `config` you also have to reinitialize the display
+  If you change values in `config` you will also need to reinitialize the display
   
-  **Display is off by default, to turn it on call `lcd_on()` function:**
+  **Display is off by default, to turn it on call `LCD_on()` function:**
   ``` c
-    lcd_on();
+    LCD_on();
   ```
   
   ### 3. Printing a message:
-  **You can prit individual characters with `lcd_write_char()`:**
+  **You can prit individual characters with `LCD_write_char()`:**
   ``` c
-    lcd_write_char('H');
-    lcd_write_char('e');
-    lcd_write_char('l');
-    lcd_write_char('l');
-    lcd_write_char('o');
-    lcd_write_char(' ');
-    lcd_write_char('w');
-    lcd_write_char('o');
-    lcd_write_char('r');
-    lcd_write_char('l');
-    lcd_write_char('d');
-    lcd_write_char('!');
+    LCD_write_char('H');
+    LCD_write_char('e');
+    LCD_write_char('l');
+    LCD_write_char('l');
+    LCD_write_char('o');
+    LCD_write_char(' ');
+    LCD_write_char('w');
+    LCD_write_char('o');
+    LCD_write_char('r');
+    LCD_write_char('l');
+    LCD_write_char('d');
+    LCD_write_char('!');
   ```
-  **To clear the display use `lcd_clear()`:**
+  **To clear the display use `LCD_clear()`:**
   ``` c
-    lcd_clear();
+    LCD_clear();
   ```
-  **To write string use `lcd_write_string()` with arguments:**
+  **To write string use `LCD_write_string(char*)` with arguments:**
   
   1. pointer to the string
-  2. lenght of the string
   ``` c
     char greetings[] = "Hello world!";
-    lcd_write_string(&greetings[0], 12);
+    LCD_write_string(&greetings[0]);
   ```
   
 ## 4. Reference:
   
-  ### `int lcd_init(PinConfig* config)`: ###
+  ### `int LCD_init(PinConfig* config)`: ###
   
   - **Description:**
   
@@ -94,25 +93,25 @@ AVR devices
   - **Return value: `int`:** 
   
         0 if success
-        1 if pin verification failed (some values specified in supplied config are the same or 0)
+        1 if pin verification failed (some values specified in provided config are the same or 0)
     
     
- ### `void lcd_command(uint8_t command)`: ###
+ ### `void LCD_instruction(uint8_t instruction)`: ###
   
   - **Description:**
   
-        Sends command for the display (list of commands can be found in the datasheet on page 25)
+        Sends instruction to the display (list of instruction can be found in the datasheet on page 25)
     
   - **Arguments:**
   
-        1. Command (in the datasheet refferred to as `instruction`)
+        1. Instruction
     
   - **Return value: `void`:** 
   
         none
     
     
- ### `void lcd_write_char(char character)`: ###
+ ### `void LCD_write_char(char character)`: ###
   
   - **Description:**
   
@@ -126,7 +125,7 @@ AVR devices
   
         none
     
- ### `void lcd_clear()`: ###
+ ### `void LCD_clear()`: ###
   
   - **Description:**
   
@@ -141,7 +140,7 @@ AVR devices
         none
     
     
- ### `void lcd_set_cursor(uint8_t row, uint8_t collumn)`: ###
+ ### `void LCD_set_cursor(uint8_t row, uint8_t collumn)`: ###
   
   - **Description:**
   
@@ -157,7 +156,7 @@ AVR devices
         none
         
      
- ### `void lcd_write_string(char* string, unsigned long length)`: ###
+ ### `void LCD_write_string(char* string)`: ###
   
   - **Description:**
   
@@ -165,21 +164,35 @@ AVR devices
     
   - **Arguments:**
   
-        1. pointer to the first character of the string
-        2. length of the string
+        1. pointer to the string
     
   - **Return value: `void`:** 
   
         none
+ 
+ ### `void LCD_write_buffer(char* buffer, uint16_t length)`: ###
+  
+  - **Description:**
+  
+        Writes buffer to the display
+    
+  - **Arguments:**
+  
+        1. pointer to the buffer
+        2. length of the buffer
+    
+  - **Return value: `void`:** 
+  
+        none
+ 
         
-        
- ### `void lcd_pulse_en()`: ###
+ ### `void LCD_pulse_en()`: ###
   
   - **Description:**
   
         Pulses the EN pin of the display 
           1. pulls the pin HIGH
-          2. waits specified amount of microseconds (LCD_DELAY in HD44780/HD44780.c)
+          2. waits specified amount of microseconds (LCD_DELAY in HD44780/HD44780.h)
           3. pulls the pin LOW again
     
   - **Arguments:**
@@ -191,11 +204,11 @@ AVR devices
         none
         
         
-  ### `void lcd_pulse_en_repeat(int repeat)`: ###
+  ### `void LCD_pulse_en_repeat(int repeat)`: ###
   
   - **Description:**
   
-        Calls lcd_pulse_en() specified amount of times
+        Calls LCD_pulse_en() specified amount of times
     
   - **Arguments:**
   
@@ -206,28 +219,26 @@ AVR devices
         none
         
         
- ### `void lcd_show_cursor(uint8_t blink)`: ###
+ ### `void LCD_show_cursor()`: ###
   
   - **Description:**
   
         Turns on cursor on the display
     
   - **Arguments:**
-  
-        1. Should the cursor blink?
-           0 - no
-           > 0 - yes
-    
+        
+        none
+        
   - **Return value: `void`:** 
   
         none
         
  
- ### `void lcd_hide_cusror()`: ###
+ ### `void LCD_hide_cusror()`: ###
   
   - **Description:**
   
-        Turns of cursor on the display
+        Turns off cursor on the display
     
   - **Arguments:**
   
@@ -238,7 +249,7 @@ AVR devices
         none
         
  
-  ### `void lcd_on()`: ###
+  ### `void LCD_on()`: ###
   
   - **Description:**
   
@@ -253,7 +264,7 @@ AVR devices
         none
         
  
- ### `void lcd_off()`: ###
+ ### `void LCD_off()`: ###
   
   - **Description:**
   
@@ -267,8 +278,35 @@ AVR devices
   
         none
         
+ ### `void LCD_cursor_blink()`: ###
+  
+  - **Description:**
+  
+        Turns cursor blink on
+    
+  - **Arguments:**
+  
+        none
+    
+  - **Return value: `void`:** 
+  
+        none
+        
+ ### `void LCD_cursor_noblink()`: ###
+  
+  - **Description:**
+  
+        Turns cursor blink off
+    
+  - **Arguments:**
+  
+        none
+    
+  - **Return value: `void`:** 
+  
+        none
  
- ### `void lcd_home()`: ###
+ ### `void LCD_home()`: ###
   
   - **Description:**
   
