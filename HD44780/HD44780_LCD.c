@@ -7,10 +7,7 @@
 #define LCD_STATE_ON 4
 
 void _LCD_clear_data_pins();
-uint8_t _LCD_my_log2(uint8_t x);
 void _LCD_write_value(uint8_t value, uint8_t rs_value);
-void _LCD_init_linear();
-void _LCD_init_nonlinear();
 uint8_t _LCD_verify_config();
  
 uint8_t _LCD_current_state;
@@ -83,12 +80,6 @@ void LCD_pulse_en()
 void LCD_pulse_en_repeat(int repeat)
 {
 	for (int i = 0; i < repeat; i++) LCD_pulse_en();
-}
-
-uint8_t _LCD_my_log2(uint8_t x)
-{
-	//shamelessly stolen from https://stackoverflow.com/questions/3064926/how-to-write-log-base2-in-c-c
-	return (uint8_t)(log10(x) / log10(2));
 }
 
 void _LCD_write_value(uint8_t value, uint8_t rs_value)
