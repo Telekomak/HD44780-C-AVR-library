@@ -1,4 +1,4 @@
-#define F_CPU 16000000
+#define F_CPU 16000000u
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -10,7 +10,7 @@ int main(void)
 	char cursor_visible[] = "Cursor visible";
 	char cursor_blinking[] = "Cursor blinking";
 	char greetings[] = "Hello world!";
-	PinConfig config = {.ddr = &DDRD, .port = &PORTD, .d0 = 32, .d1 = 16, .d2 = 128, .d3 = 64, .rs = 4, .en = 8};
+	PinConfig config = {.ddr = &DDRB, .port = &PORTB, .d0 = 4, .d1 = 8, .d2 = 16, .d3 = 32, .rs = 1, .en = 2};
 	
     LCD_init(&config);
 	//display is off by default

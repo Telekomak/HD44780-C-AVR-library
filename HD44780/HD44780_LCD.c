@@ -9,7 +9,7 @@
 void _LCD_clear_data_pins();
 void _LCD_write_value(uint8_t value, uint8_t rs_value);
 uint8_t _LCD_verify_config();
- 
+
 uint8_t _LCD_current_state;
 PinConfig* _LCD_config;
 
@@ -24,7 +24,7 @@ int LCD_init(PinConfig* config)
 		| _LCD_config -> d0 | _LCD_config -> d1
 		| _LCD_config -> d2 | _LCD_config -> d3);
 		
-		//Label LCD pins as output
+		//Set LCD pins as output
 		*(_LCD_config -> ddr) |= ddr_value;
 		
 		//Set all pins labeled as output to LOW
@@ -53,7 +53,7 @@ uint8_t _LCD_verify_config()
 {
 	uint8_t current = 0, previous = 0;
 	
-	//cycle trough all members the _LCD_config struct
+	//cycle through all members the _LCD_config struct
 	//skip first two because they are pointers (pointer is 2 bytes long)
 	for (uint8_t i = 2 * sizeof(uint8_t*); i < sizeof(PinConfig); i++)
 	{
@@ -75,6 +75,7 @@ void LCD_pulse_en()
 	*(_LCD_config -> port) |= _LCD_config -> en;
 	_delay_us(LCD_DELAY);
 	*(_LCD_config -> port) &= ~_LCD_config -> en;
+	_delay_us(LCD_DELAY);
 }
 
 void LCD_pulse_en_repeat(int repeat)
