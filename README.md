@@ -3,11 +3,7 @@
 This library is focused on providing a fast and simple way of communicating with the HD44780 controller while also providing low-level functionality to allow more control over the controller.
 
 ## Note:
-If this library doesn't work correctly, try redefining ```LCD_DELAY```. This value affects time that HD44780 chip is given to process data packets (for my display it works with 1500).
-Amount of time that HD44780 needs is tied to clock frequency of to the chip.
-Theese values are specified in the [datasheet](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf) on page 24.
-
-It's either this or I fucked up something in the code.
+You can control data rate by redefining `LCD_DELAY` macro (default is 100)
 
 ## Targets:
 AVR devices
